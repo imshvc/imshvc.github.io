@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Redirecting ...</title>
+</head>
+<body>
+<style>
+html, body {
+  margin: 0;
+  padding: 8px;
+  font-size: 18pt;
+  font-family: sans-serif;
+}
+
+a,
+a:visited {
+  padding: 1px 4px;
+  color: #00F;
+}
+
+a:hover {
+  background-color: #00F;
+  color: #FFF;
+}
+</style>
+
+Redirecting to <a></a> ...<br>
+Click the link if the redirect fails.
+
+<script>
+var nextUrl = 'https://github.com/kevquirk/simple.css';
+var anchor = document.getElementsByTagName('a')[0]
+anchor.href = nextUrl;
+anchor.innerText = nextUrl;
+
+setTimeout(function() {
+  window.location.replace(nextUrl);
+}, 2e3);
+</script>
+</body>
+</html>
