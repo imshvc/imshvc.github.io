@@ -1,24 +1,90 @@
-/* Author: Nurudin Imsirovic <realnurudinimsirovic@gmail.com>
- * File: style.css
- * Iteration Count: 1
- * Created: 2024-09-12 08:19 PM
- * Updated: 2024-09-12 08:21 PM
- */
-
 :root {
   outline: 0;
   box-sizing: border-box;
+
+  /* light theme */
+  --background-color: #FFF;
+  --color: #000;
+  --border-color: #000;
 }
 
 html,
 body {
   margin: 0;
   padding: 0;
-  background-color: #FFF;
-  color: #000;
+  background-color: var(--background-color);
+  color: var(--color);
+  font-size: 16pt;
+  font-family: serif;
 }
 
-@font-face {
-  font-family: '_roboto-medium';
-  src: url('/fonts/roboto-medium.ttf') format('truetype');
+#view {
+  width: 600px;
+  margin: auto;
 }
+
+#header {
+  width: 100%;
+  text-align: center;
+  padding: 18px 0;
+}
+
+#header .title {
+  font-weight: bold;
+  font-size: 20pt;
+}
+
+#links {
+  border: 1px solid var(--border-color);
+  border-left: none;
+  border-right: none;
+  padding: 18px 0;
+  text-align: center;
+}
+
+#links a,
+#links a:visited {
+  padding: 4px;
+  margin: 0 -2px;
+  color: var(--color);
+}
+
+#links a:hover {
+  background-color: var(--color);
+  color: var(--background-color);
+  text-decoration: none;
+}
+
+#content {
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding: 24px;
+}
+
+/* content tweaks */
+#content p {
+  /*line-height: 3px;*/
+  margin: 0;
+  margin-bottom: 1ch;
+}
+
+#content h1,
+#content h2,
+#content h3,
+#content h4,
+#content h5,
+#content h6 {
+  margin: 0;
+  margin-top: 0.5ch;
+  margin-bottom: 0.5ch;
+}
+
+/* dark theme */
+/*@media (prefers-color-scheme: dark) {
+  :root {
+    --background-color: #000;
+    --color: #FFF;
+    --border-color: #FFF;
+  }
+}*/
