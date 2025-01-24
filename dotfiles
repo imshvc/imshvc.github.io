@@ -4,7 +4,7 @@
 # file:       bootstrap-remote.sh
 # desc:       bootstrap my dotfiles remotely
 # created:    2025-01-24 01:46 AM
-# updated:    2025-01-24 05:58 AM
+# updated:    2025-01-24 09:51 AM
 # repository: https://github.com/imshvc/dotfiles
 
 # one-liner: curl -sSL https://imshvc.github.io/dotfiles | /bin/bash -i 2>/dev/null
@@ -30,9 +30,6 @@
 #      but this method is considered more secure as two
 #      configurations don't overlap.
 
-# clear console screen
-clear
-
 # bootstrap: not allowed for root user
 # unless: ALLOW_ROOT is set
 if [ "$ALLOW_ROOT" == "" ]; then
@@ -48,17 +45,6 @@ if [ "$ALLOW_ROOT" == "" ]; then
 fi
 
 pushd "$HOME" >&/dev/null
-
-# fail: already bootstrapped
-# delete file to bootstrap again
-if [ -f "$HOME/.dotfiles_bootstrapped" ]; then
-  echo -e "fail:\n"
-  echo -e "  bootstrapped already.\n"
-  echo -e "  to bootstrap again run: 'rm -f ~/.dotfiles_bootstrapped'\n"
-  echo -e "  then retry the bootstrap command."
-  popd
-  exit 1
-fi
 
 echo "info: bootstrap in progress"
 
