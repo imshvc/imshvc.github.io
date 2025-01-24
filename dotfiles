@@ -4,7 +4,7 @@
 # file:       bootstrap-dotfiles.sh
 # desc:       ugly bootstrap script for my dotfiles
 # created:    2025-01-24 01:46 AM
-# updated:    2025-01-24 04:54 AM
+# updated:    2025-01-24 04:57 AM
 # repository: https://github.com/imshvc/dotfiles
 
 # one-liner: curl -sSL https://imshvc.github.io/dotfiles | /bin/bash -i 2>/dev/null
@@ -84,6 +84,7 @@ touch .dotfiles_bootstrapped >&/dev/null
 source .bashrc
 
 echo "pass: dotfiles bootstrapped"
+echo "note: re-open your terminal"
 
 popd >&/dev/null
 exit 0
