@@ -4,7 +4,7 @@
 # file:       bootstrap-dotfiles.sh
 # desc:       ugly bootstrap script for my dotfiles
 # created:    2025-01-24 01:46 AM
-# updated:    2025-01-24 03:03 AM
+# updated:    2025-01-24 04:54 AM
 # repository: https://github.com/imshvc/dotfiles
 
 # one-liner: curl -sSL https://imshvc.github.io/dotfiles | /bin/bash -i 2>/dev/null
@@ -45,7 +45,7 @@ if [ "$ALLOW_ROOT" == "" ]; then
   fi
 fi
 
-pushd "$HOME"
+pushd "$HOME" >&/dev/null
 
 # fail: already bootstrapped
 # delete file to bootstrap again
@@ -58,6 +58,8 @@ if [ -f "$HOME/.dotfiles_bootstrapped" ]; then
   exit 1
 fi
 
+echo "info: bootstrap in progress"
+
 # set: default repo
 repo_url="https://raw.githubusercontent.com/imshvc/dotfiles/refs/heads/main"
 
@@ -65,22 +67,23 @@ repo_url="https://raw.githubusercontent.com/imshvc/dotfiles/refs/heads/main"
 mkdir ".local" >&/dev/null
 mkdir ".local/bin" >&/dev/null
 
-curl -sSL "$repo_url/.bash_aliases" > .bash_aliases >&/dev/null
-curl -sSL "$repo_url/.bash_config" > .bash_config >&/dev/null
-curl -sSL "$repo_url/.bash_exports" > .bash_exports >&/dev/null
-curl -sSL "$repo_url/.bash_functions" > .bash_functions >&/dev/null
-curl -sSL "$repo_url/.bash_history" > .bash_history >&/dev/null
-curl -sSL "$repo_url/.bash_logout" > .bash_logout >&/dev/null
-curl -sSL "$repo_url/.bashrc" > .bashrc >&/dev/null
-curl -sSL "$repo_url/.gitconfig" > .gitconfig >&/dev/null
-curl -sSL "$repo_url/.nanorc" > .nanorc >&/dev/null
-curl -sSL "$repo_url/.profile" > .profile >&/dev/null
-curl -sSL "$repo_url/.wgetrc" > .wgetrc >&/dev/null
+curl -sSL "$repo_url/.bash_aliases" > .bash_aliases 2>/dev/null
+curl -sSL "$repo_url/.bash_config" > .bash_config 2>/dev/null
+curl -sSL "$repo_url/.bash_exports" > .bash_exports 2>/dev/null
+curl -sSL "$repo_url/.bash_functions" > .bash_functions 2>/dev/null
+curl -sSL "$repo_url/.bash_history" > .bash_history 2>/dev/null
+curl -sSL "$repo_url/.bash_logout" > .bash_logout 2>/dev/null
+curl -sSL "$repo_url/.bashrc" > .bashrc 2>/dev/null
+curl -sSL "$repo_url/.gitconfig" > .gitconfig 2>/dev/null
+curl -sSL "$repo_url/.nanorc" > .nanorc 2>/dev/null
+curl -sSL "$repo_url/.profile" > .profile 2>/dev/null
+curl -sSL "$repo_url/.wgetrc" > .wgetrc 2>/dev/null
 
 touch .dotfiles_bootstrapped >&/dev/null
 
 source .bashrc
 
-log pass 'dotfiles bootstrap: done'
+echo "pass: dotfiles bootstrapped"
 
-popd
+popd >&/dev/null
+exit 0
