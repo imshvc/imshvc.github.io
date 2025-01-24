@@ -1,19 +1,18 @@
 #!/usr/bin/env bash
 
 # authors:    Nurudin Imsirovic <imshvc>
-# file:       bootstrap-dotfiles.sh
-# desc:       ugly bootstrap script for my dotfiles
+# file:       bootstrap-remote.sh
+# desc:       bootstrap my dotfiles remotely
 # created:    2025-01-24 01:46 AM
-# updated:    2025-01-24 04:57 AM
+# updated:    2025-01-24 05:58 AM
 # repository: https://github.com/imshvc/dotfiles
 
 # one-liner: curl -sSL https://imshvc.github.io/dotfiles | /bin/bash -i 2>/dev/null
 
 # root user: 2 methods
 # -- method 1: source files from other user
-#      run these commands as a regular user:
-#        1. sudo cp /home/$USER/.bashrc /root/.bashrc
-#        2. sudo sed "s|\$HOME|/home/$USER|g" /root/.bashrc | sudo tee -a /root/.bashrc >&/dev/null
+#      run the command as a regular user:
+#        sudo sed "s|\$HOME|/home/$USER|g" ~/.bashrc | sudo tee -a /root/.bashrc >&/dev/null
 #
 #      sourcing files from other user's home folder is not recommended
 #      for security reasons, but I structured my files so that they play
@@ -30,6 +29,9 @@
 #      files will have to be managed separately for each user,
 #      but this method is considered more secure as two
 #      configurations don't overlap.
+
+# clear console screen
+clear
 
 # bootstrap: not allowed for root user
 # unless: ALLOW_ROOT is set
@@ -71,7 +73,7 @@ curl -sSL "$repo_url/.bash_aliases" > .bash_aliases 2>/dev/null
 curl -sSL "$repo_url/.bash_config" > .bash_config 2>/dev/null
 curl -sSL "$repo_url/.bash_exports" > .bash_exports 2>/dev/null
 curl -sSL "$repo_url/.bash_functions" > .bash_functions 2>/dev/null
-curl -sSL "$repo_url/.bash_history" > .bash_history 2>/dev/null
+# curl -sSL "$repo_url/.bash_history" > .bash_history 2>/dev/null
 curl -sSL "$repo_url/.bash_logout" > .bash_logout 2>/dev/null
 curl -sSL "$repo_url/.bashrc" > .bashrc 2>/dev/null
 curl -sSL "$repo_url/.gitconfig" > .gitconfig 2>/dev/null
