@@ -4,7 +4,7 @@
 # file:       bootstrap-remote.sh
 # desc:       bootstrap my dotfiles remotely
 # created:    2025-01-24 01:46 AM
-# updated:    2025-01-24 10:13 AM
+# updated:    2025-01-25 03:29 AM
 # repository: https://github.com/imshvc/dotfiles
 
 # one-liner: curl -sSL https://imshvc.github.io/dotfiles | /bin/bash -i 2>/dev/null
@@ -67,8 +67,6 @@ curl -sSL "$repo_url/.nanorc" > .nanorc 2>/dev/null
 curl -sSL "$repo_url/.profile" > .profile 2>/dev/null
 curl -sSL "$repo_url/.wgetrc" > .wgetrc 2>/dev/null
 curl -sSL "$repo_url/.pathlst" > .pathlst 2>/dev/null
-
-touch .dotfiles_bootstrapped >&/dev/null
 
 source .bashrc
 
