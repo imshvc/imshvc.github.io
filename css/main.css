@@ -29,6 +29,10 @@ pre {
   overflow: auto;
 }
 
+#view.redirect {
+  text-align: center;
+}
+
 a,
 a:visited {
   color: #00A;
