@@ -1,77 +1,150 @@
 #!/usr/bin/env bash
 
-# authors:    Nurudin Imsirovic <imshvc>
-# file:       bootstrap-remote.sh
-# desc:       bootstrap my dotfiles remotely
-# created:    2025-01-24 01:46 AM
-# updated:    2025-01-25 03:29 AM
-# repository: https://github.com/imshvc/dotfiles
-
-# one-liner: curl -sSL https://imshvc.github.io/dotfiles | /bin/bash -i 2>/dev/null
-
-# root user: 2 methods
-# -- method 1: source files from other user
-#      run the command as a regular user:
-#        sudo sed "s|\$HOME|/home/$USER|g" ~/.bashrc | sudo tee -a /root/.bashrc >&/dev/null
+# authors:
+#   Nurudin Imsirovic <imshvc>
 #
-#      sourcing files from other user's home folder is not recommended
-#      for security reasons, but I structured my files so that they play
-#      nicely alongside two users (the regular user, and root user).
+# file:
+#   bootstrap.sh
 #
-#      but then again - you should be bootstrapping into the root folder
-#      separately, see method 2:
+# summary:
+#   Downloads the repository as an archive and once extracted it executes apply.sh
+#   which deploys files from the dotfiles directory to the home directory of the
+#   current user.  Same applies to other users on the system, the root user would
+#   need to run apply.sh by hand to apply dotfiles to the root user.
 #
-# -- method 2: bootstrap root user
-#      run the one-liner like so:
-#        curl -sSL https://imshvc.github.io/dotfiles | ALLOW_ROOT=1 /bin/bash -i 2>/dev/null
+# created:
+#   2025-02-07 08:55 PM
 #
-#      this will bootstrap even if the user is root.
-#      files will have to be managed separately for each user,
-#      but this method is considered more secure as two
-#      configurations don't overlap.
+# updated:
+#   2025-02-08 12:36 AM
+#
+# repository:
+#   https://github.com/imshvc/dotfiles
 
-# bootstrap: not allowed for root user
-# unless: ALLOW_ROOT is set
-if [ "$ALLOW_ROOT" == "" ]; then
-  if [ "$USER" == "root" ]; then
-    echo "fail: root user not allowed."
-    exit 1
-  fi
+# set: dotfiles file name and download link
+dotfiles_file="dotfiles-main.tar.gz"
+dotfiles_link="https://codeload.github.com/imshvc/dotfiles/tar.gz/refs/heads/main"
 
-  if [ "$HOME" == "/root" ]; then
-    echo"fail: root user not allowed."
-    exit 1
-  fi
+# set: state
+has_curl=0
+has_wget=0
+has_tar=0
+downloader=0
+home_path=0
+
+# do: check for curl
+if command -v curl 2>&1 >/dev/null
+then
+  # pass: curl exists
+  has_curl=1
 fi
 
-pushd "$HOME" >&/dev/null
+# do: check for wget
+if command -v wget 2>&1 >/dev/null
+then
+  # pass: wget exists
+  has_wget=1
+fi
 
-echo "info: bootstrap in progress"
+# fail: no curl nor wget
+if [ $has_curl = 0 ] && [ $has_wget = 0 ]; then
+  echo "fail: no curl and wget - cannot download archive"
+  exit 1
+fi
 
-# set: default repo
-repo_url="https://raw.githubusercontent.com/imshvc/dotfiles/refs/heads/main"
+# set: curl as downloader
+if [ $has_curl = 1 ]; then
+  downloader=curl
+fi
 
-# warn: files will be overwritten without prompt
-mkdir ".local" >&/dev/null
-mkdir ".local/bin" >&/dev/null
+# set: wget as downloader (no curl)
+if [ $downloader = 0 ] && [ $has_wget = 1 ]; then
+  downloader=wget
+fi
 
-curl -sSL "$repo_url/.bash_aliases" > .bash_aliases 2>/dev/null
-curl -sSL "$repo_url/.bash_config" > .bash_config 2>/dev/null
-curl -sSL "$repo_url/.bash_exports" > .bash_exports 2>/dev/null
-curl -sSL "$repo_url/.bash_functions" > .bash_functions 2>/dev/null
-# curl -sSL "$repo_url/.bash_history" > .bash_history 2>/dev/null
-curl -sSL "$repo_url/.bash_logout" > .bash_logout 2>/dev/null
-curl -sSL "$repo_url/.bashrc" > .bashrc 2>/dev/null
-curl -sSL "$repo_url/.gitconfig" > .gitconfig 2>/dev/null
-curl -sSL "$repo_url/.nanorc" > .nanorc 2>/dev/null
-curl -sSL "$repo_url/.profile" > .profile 2>/dev/null
-curl -sSL "$repo_url/.wgetrc" > .wgetrc 2>/dev/null
-curl -sSL "$repo_url/.pathlst" > .pathlst 2>/dev/null
+# do: check for tar
+if command -v tar 2>&1 >/dev/null
+then
+  # pass: tar exists
+  has_tar=1
+fi
 
-source .bashrc
+# fail: no tar
+if [ $has_tar = 0 ]; then
+  echo "fail: no tar - cannot extract archive"
+  exit 2
+fi
 
-echo "pass: dotfiles bootstrapped"
-echo "note: re-open your terminal"
+# set: absolute home path
+if [ $EUID = 0 ]; then
+  home_path="/root"
+else
+  home_path="/home/$USER"
+fi
 
-popd >&/dev/null
+# fail: invalid home path
+if [ ! -d "$home_path" ]; then
+  # fail: fake root user
+  if [ $EUID != 0 ] && [ "${USER,,}" = "root" ]; then
+    echo "fail: fake root user - try with sudo"
+    exit 4
+  fi
+
+  # fail: invalid user
+  echo "fail: invalid user \"$USER\""
+  exit 3
+fi
+
+# fail: dotfiles already exists
+if [ -d "$home_path/dotfiles" ]; then
+  echo "fail: destination \"$home_path/dotfiles\" already exists - delete and try again"
+  exit 4
+fi
+
+# do: create dotfiles directory
+mkdir -p "$home_path/dotfiles" 2>&1 >/dev/null
+
+# fail: dotfiles directory
+if [ ! -d "$home_path/dotfiles" ]; then
+  echo "fail: destination \"$home_path/dotfiles\" could not be created - no further info"
+  exit 5
+fi
+
+pushd "$home_path/dotfiles" 2>&1 >/dev/null
+
+# do: download archive
+if [ $downloader = curl ]; then
+  # pass: curl
+  curl --silent --insecure -o $dotfiles_file $dotfiles_link
+elif [ $downloader = wget ]; then # pass
+  # pass: wget
+  wget -nc -q -O $dotfiles_file $dotfiles_link
+else
+  # fail: unknown downloader
+  echo "fail: unknown downloader the script does not support"
+  exit 6
+fi
+
+# fail: download failed
+if [ ! -f $dotfiles_file ]; then
+  echo "fail: archive download failed: $dotfiles_link"
+  exit 7
+fi
+
+# do: extract archive (stripping dotfiles-main)
+tar --strip-components=1 -xzvf dotfiles-main.tar.gz 2>&1 >/dev/null
+
+# do: check for apply.sh
+if [ -f "apply.sh" ]; then
+  # pass: found
+  chmod +x "apply.sh"
+  ./apply.sh $home_path
+else
+  # fail: not found
+  echo "fail: apply.sh not found"
+fi
+
+popd 2>&1 >/dev/null
+
+# pass: successful bootstrap
 exit 0
