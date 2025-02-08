@@ -16,7 +16,7 @@
 #   2025-02-07 08:55 PM
 #
 # updated:
-#   2025-02-08 12:36 AM
+#   2025-02-08 01:19 AM
 #
 # repository:
 #   https://github.com/imshvc/dotfiles
@@ -31,6 +31,21 @@ has_wget=0
 has_tar=0
 downloader=0
 home_path=0
+
+# set: MSYS2 related
+is_msys2=0
+msys_os=$(uname -o)
+msys_os=${msys_os,,}
+
+# fix: MSYS2: Windows Environment
+if [ "$msys_os" == "msys" ]; then
+  is_msys2=1
+
+  # fix: USER env empty
+  if [ "$USER" = "" ]; then
+    USER=$USERNAME
+  fi
+fi
 
 # do: check for curl
 if command -v curl 2>&1 >/dev/null
@@ -79,7 +94,12 @@ fi
 if [ $EUID = 0 ]; then
   home_path="/root"
 else
-  home_path="/home/$USER"
+  # fix: MSYS2: inject Windows path
+  if [ $is_msys2 = 1 ]; then
+    home_path="/c/Users/$USER"
+  else
+    home_path="/home/$USER"
+  fi
 fi
 
 # fail: invalid home path
