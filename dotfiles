@@ -16,7 +16,7 @@
 #   2025-02-07 08:55 PM
 #
 # updated:
-#   2025-02-08 01:19 AM
+#   2025-02-10 06:36 AM
 #
 # repository:
 #   https://github.com/imshvc/dotfiles
@@ -31,17 +31,20 @@ has_wget=0
 has_tar=0
 downloader=0
 home_path=0
-
-# set: MSYS2 related
 is_msys2=0
-msys_os=$(uname -o)
-msys_os=${msys_os,,}
 
-# fix: MSYS2: Windows Environment
-if [ "$msys_os" == "msys" ]; then
+# detect: cygwin
+# fail: not a supported platform
+if [[ "$(uname -s)" =~ ^CYGWIN_NT.* ]]; then
+  echo "fail: cygwin is not a supported platform"
+  exit 1
+fi
+
+# detect: msys2
+if [[ "$(uname -s)" =~ ^MSYS_NT.* ]]; then
   is_msys2=1
 
-  # fix: USER env empty
+  # fix: msys2: user not set
   if [ "$USER" = "" ]; then
     USER=$USERNAME
   fi
@@ -64,7 +67,7 @@ fi
 # fail: no curl nor wget
 if [ $has_curl = 0 ] && [ $has_wget = 0 ]; then
   echo "fail: no curl and wget - cannot download archive"
-  exit 1
+  exit 2
 fi
 
 # set: curl as downloader
@@ -87,14 +90,14 @@ fi
 # fail: no tar
 if [ $has_tar = 0 ]; then
   echo "fail: no tar - cannot extract archive"
-  exit 2
+  exit 3
 fi
 
 # set: absolute home path
 if [ $EUID = 0 ]; then
   home_path="/root"
 else
-  # fix: MSYS2: inject Windows path
+  # fix: msys2: inject windows path
   if [ $is_msys2 = 1 ]; then
     home_path="/c/Users/$USER"
   else
@@ -112,13 +115,13 @@ if [ ! -d "$home_path" ]; then
 
   # fail: invalid user
   echo "fail: invalid user \"$USER\""
-  exit 3
+  exit 5
 fi
 
 # fail: dotfiles already exists
 if [ -d "$home_path/dotfiles" ]; then
   echo "fail: destination \"$home_path/dotfiles\" already exists - delete and try again"
-  exit 4
+  exit 6
 fi
 
 # do: create dotfiles directory
@@ -127,7 +130,7 @@ mkdir -p "$home_path/dotfiles" 2>&1 >/dev/null
 # fail: dotfiles directory
 if [ ! -d "$home_path/dotfiles" ]; then
   echo "fail: destination \"$home_path/dotfiles\" could not be created - no further info"
-  exit 5
+  exit 7
 fi
 
 pushd "$home_path/dotfiles" 2>&1 >/dev/null
@@ -142,17 +145,17 @@ elif [ $downloader = wget ]; then # pass
 else
   # fail: unknown downloader
   echo "fail: unknown downloader the script does not support"
-  exit 6
+  exit 8
 fi
 
 # fail: download failed
 if [ ! -f $dotfiles_file ]; then
   echo "fail: archive download failed: $dotfiles_link"
-  exit 7
+  exit 9
 fi
 
 # do: extract archive (stripping dotfiles-main)
-tar --strip-components=1 -xzvf dotfiles-main.tar.gz 2>&1 >/dev/null
+tar --strip-components=1 -xzvf $dotfiles_file 2>&1 >/dev/null
 
 # do: check for apply.sh
 if [ -f "apply.sh" ]; then
@@ -164,7 +167,30 @@ else
   echo "fail: apply.sh not found"
 fi
 
+# do: make bootstrap.sh executable
+# because by default it is not
+if [ -f "bootstrap.sh" ]; then
+  chmod +x "bootstrap.sh"
+fi
+
+# if: msys2 then: check for msys2/apply.sh
+# this script runs after bootstrap.sh as
+# it has to overwrite files
+if [ -f "msys2/apply.sh" ]; then
+  # pass: found
+  pushd "msys2" 2>&1 >/dev/null
+
+  chmod +x "apply.sh"
+  ./apply.sh $home_path
+
+  popd 2>&1 >/dev/null
+else
+  # fail: not found
+  echo "fail: msys2/apply.sh not found"
+fi
+
 popd 2>&1 >/dev/null
 
 # pass: successful bootstrap
+echo "imshvc/dotfiles... done"
 exit 0
