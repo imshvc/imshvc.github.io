@@ -16,7 +16,7 @@
 #   2025-02-07 08:55 PM
 #
 # updated:
-#   2025-02-10 06:36 AM
+#   2025-02-10 06:53 AM
 #
 # repository:
 #   https://github.com/imshvc/dotfiles
@@ -176,17 +176,19 @@ fi
 # if: msys2 then: check for msys2/apply.sh
 # this script runs after bootstrap.sh as
 # it has to overwrite files
-if [ -f "msys2/apply.sh" ]; then
-  # pass: found
-  pushd "msys2" 2>&1 >/dev/null
+if [ $is_msys2 = 1 ]; then
+  if [ -f "msys2/apply.sh" ]; then
+    # pass: found
+    pushd "msys2" 2>&1 >/dev/null
 
-  chmod +x "apply.sh"
-  ./apply.sh $home_path
+    chmod +x "apply.sh"
+    ./apply.sh $home_path
 
-  popd 2>&1 >/dev/null
-else
-  # fail: not found
-  echo "fail: msys2/apply.sh not found"
+    popd 2>&1 >/dev/null
+  else
+    # fail: not found
+    echo "fail: msys2/apply.sh not found"
+  fi
 fi
 
 popd 2>&1 >/dev/null
