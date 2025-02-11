@@ -16,7 +16,7 @@
 #   2025-02-07 08:55 PM
 #
 # updated:
-#   2025-02-10 06:53 AM
+#   2025-02-11 09:52 AM
 #
 # repository:
 #   https://github.com/imshvc/dotfiles
@@ -51,15 +51,13 @@ if [[ "$(uname -s)" =~ ^MSYS_NT.* ]]; then
 fi
 
 # do: check for curl
-if command -v curl 2>&1 >/dev/null
-then
+if command -v curl 2>&1 >/dev/null; then
   # pass: curl exists
   has_curl=1
 fi
 
 # do: check for wget
-if command -v wget 2>&1 >/dev/null
-then
+if command -v wget 2>&1 >/dev/null; then
   # pass: wget exists
   has_wget=1
 fi
@@ -81,8 +79,7 @@ if [ $downloader = 0 ] && [ $has_wget = 1 ]; then
 fi
 
 # do: check for tar
-if command -v tar 2>&1 >/dev/null
-then
+if command -v tar 2>&1 >/dev/null; then
   # pass: tar exists
   has_tar=1
 fi
@@ -138,10 +135,10 @@ pushd "$home_path/dotfiles" 2>&1 >/dev/null
 # do: download archive
 if [ $downloader = curl ]; then
   # pass: curl
-  curl --silent --insecure -o $dotfiles_file $dotfiles_link
+  curl --silent --insecure -o "$dotfiles_file" "$dotfiles_link"
 elif [ $downloader = wget ]; then # pass
   # pass: wget
-  wget -nc -q -O $dotfiles_file $dotfiles_link
+  wget -nc -q -O "$dotfiles_file" "$dotfiles_link"
 else
   # fail: unknown downloader
   echo "fail: unknown downloader the script does not support"
@@ -149,19 +146,19 @@ else
 fi
 
 # fail: download failed
-if [ ! -f $dotfiles_file ]; then
+if [ ! -f "$dotfiles_file" ]; then
   echo "fail: archive download failed: $dotfiles_link"
   exit 9
 fi
 
 # do: extract archive (stripping dotfiles-main)
-tar --strip-components=1 -xzvf $dotfiles_file 2>&1 >/dev/null
+tar --strip-components=1 -xzvf "$dotfiles_file" 2>&1 >/dev/null
 
 # do: check for apply.sh
 if [ -f "apply.sh" ]; then
   # pass: found
   chmod +x "apply.sh"
-  ./apply.sh $home_path
+  ./apply.sh "$home_path" 2>&1 >/dev/null
 else
   # fail: not found
   echo "fail: apply.sh not found"
@@ -171,24 +168,6 @@ fi
 # because by default it is not
 if [ -f "bootstrap.sh" ]; then
   chmod +x "bootstrap.sh"
-fi
-
-# if: msys2 then: check for msys2/apply.sh
-# this script runs after bootstrap.sh as
-# it has to overwrite files
-if [ $is_msys2 = 1 ]; then
-  if [ -f "msys2/apply.sh" ]; then
-    # pass: found
-    pushd "msys2" 2>&1 >/dev/null
-
-    chmod +x "apply.sh"
-    ./apply.sh $home_path
-
-    popd 2>&1 >/dev/null
-  else
-    # fail: not found
-    echo "fail: msys2/apply.sh not found"
-  fi
 fi
 
 popd 2>&1 >/dev/null
