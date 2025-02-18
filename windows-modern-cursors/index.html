@@ -1,0 +1,34 @@
+<!doctype html>
+<html id="root" lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="stylesheet" type="text/css" href="/css/main.css">
+  <title>Redirecting you ...</title>
+</head>
+<body>
+
+  <div id="view" class="redirect">
+
+    <script type="text/javascript">
+      var compiled = `
+    <h1>Redirecting you in 3 seconds ...</h1>
+    <p>Click the link if you are not redirected:<br>
+  `;
+
+      var view = document.getElementById('view');
+      var dest = 'https://imshvc.github.io/windows-cursors-modern';
+
+      compiled += `<a href="${dest}">${dest}</a></p>`;
+      view.innerHTML = compiled;
+
+      setTimeout(function() {
+        window.location.replace(dest);
+      }, 3000);
+    </script>
+
+  </div>
+
+</body>
+</html>
