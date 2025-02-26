@@ -16,7 +16,7 @@
 #   2025-02-07 08:55 PM
 #
 # updated:
-#   2025-02-11 09:52 AM
+#   2025-02-26 11:06 AM
 #
 # repository:
 #   https://github.com/imshvc/dotfiles
@@ -29,6 +29,7 @@ dotfiles_link="https://codeload.github.com/imshvc/dotfiles/tar.gz/refs/heads/mai
 has_curl=0
 has_wget=0
 has_tar=0
+has_unzip=0
 downloader=0
 home_path=0
 is_msys2=0
@@ -90,6 +91,18 @@ if [ $has_tar = 0 ]; then
   exit 3
 fi
 
+# do: check for unzip
+if command -v unzip 2>&1 >/dev/null; then
+  # pass: unzip exists
+  has_unzip=1
+fi
+
+# fail: no unzip
+if [ $has_unzip = 0 ]; then
+  echo "fail: no unzip - cannot extract archive"
+  exit 3
+fi
+
 # set: absolute home path
 if [ $EUID = 0 ]; then
   home_path="/root"
@@ -136,7 +149,7 @@ pushd "$home_path/dotfiles" 2>&1 >/dev/null
 if [ $downloader = curl ]; then
   # pass: curl
   curl --silent --insecure -o "$dotfiles_file" "$dotfiles_link"
-elif [ $downloader = wget ]; then # pass
+elif [ $downloader = wget ]; then
   # pass: wget
   wget -nc -q -O "$dotfiles_file" "$dotfiles_link"
 else
